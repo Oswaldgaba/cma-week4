@@ -99,3 +99,19 @@ movment <- movment |>
   ungroup()
 
 movment
+summary(movment)
+hist(movment$stepMean)
+
+
+movment <- movment |>
+  mutate(static = stepMean < mean(stepMean, na.rm = TRUE))
+
+movment_filter <- movment |>
+  filter(!static)
+
+movment_filter |>
+  ggplot(aes(lon_x, lat_y)) +
+  geom_path() +
+  geom_point() +
+  coord_fixed() +
+  theme(legend.position = "bottom")
