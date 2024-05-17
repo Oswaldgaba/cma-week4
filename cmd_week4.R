@@ -75,3 +75,27 @@ ggplot(movment, aes(lon_x,lat_y, color =datetime))+
   scale_color_datetime(low = "blue", high ="red")+
   guides(color = guide_colorbar(title.position = "top")
   )
+
+distance_by_element <- function(later, now) {
+  as.numeric(
+    st_distance(later, now, by_element = TRUE)
+  )
+}
+
+movment <- movment |>
+  mutate(
+    nMinus2 = distance_by_element(lag(geometry, 2), geometry),  # distance to pos -30 minutes
+    nMinus1 = distance_by_element(lag(geometry, 1), geometry),  # distance to pos -15 minutes
+    nPlus1  = distance_by_element(geometry, lead(geometry, 1)), # distance to pos +15 mintues
+    nPlus2  = distance_by_element(geometry, lead(geometry, 2))  # distance to pos +30 minutes
+  )
+movment
+
+movment <- movment |>
+  rowwise() |>
+  mutate(
+    stepMean = mean(c(nMinus2, nMinus1, nPlus1, nPlus2))
+  ) |>
+  ungroup()
+
+movment
